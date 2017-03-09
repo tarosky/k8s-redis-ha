@@ -11,16 +11,16 @@ spec:
         app: redis-server
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
-					"name": "k8s-redis-ha-server",
-					"image": "tarosky/k8s-redis-ha:server-1.0.0",
-					"volumeMounts": [{"name": "opt", "mountPath": "/opt"}],
-          "env": [
-            {"name": "SERVICE", "value": "redis-server"},
-            {"name": "SERVICE_PORT", "value": "redis-server"},
-            {"name": "SENTINEL", "value": "redis-sentinel"},
-            {"name": "SENTINEL_PORT", "value": "redis-sentinel"}
-          ]
-				}]'
+            "name": "k8s-redis-ha-server",
+            "image": "tarosky/k8s-redis-ha:server-1.0.0",
+            "volumeMounts": [{"name": "opt", "mountPath": "/opt"}],
+            "env": [
+              {"name": "SERVICE", "value": "redis-server"},
+              {"name": "SERVICE_PORT", "value": "redis-server"},
+              {"name": "SENTINEL", "value": "redis-sentinel"},
+              {"name": "SENTINEL_PORT", "value": "redis-sentinel"}
+            ]
+          }]'
     spec:
       containers:
         - name: redis-server

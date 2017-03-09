@@ -11,14 +11,14 @@ spec:
         app: redis-sentinel
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
-					"name": "k8s-redis-ha-sentinel",
-					"image": "tarosky/k8s-redis-ha:sentinel-1.0.0",
-					"volumeMounts": [{"name": "opt", "mountPath": "/opt"}],
-          "env": [
-            {"name": "SERVICE", "value": "redis-server"},
-            {"name": "SERVICE_PORT", "value": "redis-server"}
-          ]
-				}]'
+            "name": "k8s-redis-ha-sentinel",
+            "image": "tarosky/k8s-redis-ha:sentinel-1.0.0",
+            "volumeMounts": [{"name": "opt", "mountPath": "/opt"}],
+            "env": [
+              {"name": "SERVICE", "value": "redis-server"},
+              {"name": "SERVICE_PORT", "value": "redis-server"}
+            ]
+          }]'
     spec:
       containers:
         - name: redis-sentinel
