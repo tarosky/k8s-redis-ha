@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-sentinel
+  labels:
+    app: redis-sentinel
+spec:
+  clusterIP: None
+  ports:
+    - port: 26379
+      name: redis-sentinel
+  selector:
+    app: redis-sentinel

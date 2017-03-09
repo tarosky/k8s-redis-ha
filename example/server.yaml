@@ -1,0 +1,42 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis-server
+spec:
+  serviceName: redis-server
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: redis-server
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[{
+					"name": "k8s-redis-ha-server",
+					"image": "tarosky/k8s-redis-ha:server-1.0.0",
+					"volumeMounts": [{"name": "opt", "mountPath": "/opt"}],
+          "env": [
+            {"name": "SERVICE", "value": "redis-server"},
+            {"name": "SERVICE_PORT", "value": "redis-server"},
+            {"name": "SENTINEL", "value": "redis-sentinel"},
+            {"name": "SENTINEL_PORT", "value": "redis-sentinel"}
+          ]
+				}]'
+    spec:
+      containers:
+        - name: redis-server
+          image: library/redis:3.2
+          args:
+            - /opt/redis.conf
+          ports:
+            - containerPort: 6379
+              name: redis-server
+          volumeMounts:
+            - name: redis-server-volume
+              mountPath: /data
+            - name: opt
+              mountPath: /opt
+      volumes:
+        - name: redis-server-volume
+          emptyDir: {}
+        - name: opt
+          emptyDir: {}
