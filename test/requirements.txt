@@ -1,0 +1,6 @@
+autopep8
+flake8
+ipython
+isort
+nose
+yapf

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+
+SERVER_PASS="_redis-server._tcp.redis-server.${KUBE_NAMESPACE}.svc.cluster.local"
+
+SLAVE_IP="$(test/script/get-slave-ip | head -1)"
+
+kubectl exec console -n "${KUBE_NAMESPACE}" -- \
+  redis-cli \
+    -h "${SLAVE_IP}" \
+    -a "${SERVER_PASS}" \
+    "$@"
