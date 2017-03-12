@@ -122,6 +122,11 @@ run () {
     exit 0
   fi
 
+  if [ -z "$master_ip" ]; then
+    >&2 echo "Unable to start because all servers are slave."
+    exit 1
+  fi
+
   # Now the Master server has been found, this server will be launched as
   # the slave of the Master.
   echo "slaveof $master_ip 6379" >> /opt/redis.conf
