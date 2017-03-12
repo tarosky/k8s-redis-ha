@@ -58,6 +58,20 @@ sentinel_master_down () {
 }
 
 reflect_recreated_servers () {
+  # Wait enough and recheck the current state since this could happen during
+  # restart of a pod as well.
+  sleep 30
+
+  # If the state has changed, never do anything because it is just a
+  # transition state and sentinels will find the next Master themselves.
+  # Restarting them is just harmful.
+  local -r master="$(sentinel_master)"
+  local -r num_slaves="$(sentinel_num_slaves "$master")"
+  local -r master_down="$(sentinel_master_down "$master")"
+  if [ "$num_slaves" != '0' ] || [ "$master_down" != 'true' ]; then
+    return 0
+  fi
+
   local -r servers="$(server_domains "$service_domain")"
 
   local master_ip=''
