@@ -1,8 +1,6 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+set -eux
 
 readonly namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
 readonly service_domain="_$SERVICE_PORT._tcp.$SERVICE.$namespace.svc.cluster.local"
@@ -27,14 +25,6 @@ sentinel_master () {
 
 reset_sentinel () {
   redis-cli -p 26379 --raw sentinel reset mymaster
-}
-
-change_ip_sentinel () {
-  redis-cli -p 26379 shutdown nosave
-  cat /opt/sentinel.template.conf | \
-    sed "s/%MASTER%/$1/g" | \
-    sed "s/%PASSWORD%/$service_domain/g" \
-    > /opt/sentinel.conf
 }
 
 domain_ip () {
@@ -74,8 +64,6 @@ reflect_recreated_servers () {
 
   local -r servers="$(server_domains "$service_domain")"
 
-  local master_ip=''
-
   local s
   for s in $servers; do
     local s_ip="$(domain_ip "$s")"
@@ -88,7 +76,8 @@ reflect_recreated_servers () {
     local i="$(redis_info "$s_ip")"
     if [ -n "$i" ]; then
       if [ "$(redis_info_role "$i")" = 'master' ]; then
-        master_ip="$s_ip"
+        redis-cli -p 26379 shutdown nosave
+        return 0
       fi
     else
       >&2 echo "Unable to get Replication INFO: $s ($s_ip)"
@@ -96,12 +85,8 @@ reflect_recreated_servers () {
     fi
   done
 
-  if [ -z "$master_ip" ]; then
-    >&2 echo "Master not found."
-    return 1
-  fi
-
-  change_ip_sentinel "$master_ip"
+  >&2 echo "Master not found."
+  return 1
 }
 
 reflect_scale_in () {

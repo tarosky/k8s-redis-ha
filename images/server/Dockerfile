@@ -1,9 +1,8 @@
 FROM debian:jessie
 
-RUN apt-get update && apt-get install -y bc dnsutils redis-tools
-
-COPY ["redis.template.conf", "/"]
-COPY ["run.sh", "/"]
+ADD ["https://github.com/tarosky/dig-a/releases/download/v1.0.1/dig-a_linux_amd64", "/dig-a"]
+ADD ["https://github.com/tarosky/dig-srv/releases/download/v1.0.0/dig-srv_linux_amd64", "/dig-srv"]
+COPY ["redis.template.conf", "k8s-redis-ha-server", "run.sh", "/"]
 
 CMD ["/run.sh"]
 

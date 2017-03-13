@@ -12,24 +12,32 @@ spec:
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
             "name": "k8s-redis-ha-server",
-            "image": "tarosky/k8s-redis-ha:server-1.0.1",
-            "volumeMounts": [{"name": "opt", "mountPath": "/opt"}],
-            "env": [
-              {"name": "SERVICE", "value": "redis-server"},
-              {"name": "SERVICE_PORT", "value": "redis-server"},
-              {"name": "SENTINEL", "value": "redis-sentinel"},
-              {"name": "SENTINEL_PORT", "value": "redis-sentinel"}
-            ]
+            "image": "tarosky/k8s-redis-ha:server-2.0.0",
+            "volumeMounts": [{"name": "opt", "mountPath": "/opt"}]
           }]'
     spec:
       containers:
         - name: redis-server
           image: library/redis:3.2
+          command:
+            - /opt/bin/k8s-redis-ha-server
           args:
             - /opt/redis.conf
+          env:
+            - name: SERVICE
+              value: redis-server
+            - name: SERVICE_PORT
+              value: redis-server
+            - name: SENTINEL
+              value: redis-sentinel
+            - name: SENTINEL_PORT
+              value: redis-sentinel
           ports:
             - containerPort: 6379
               name: redis-server
+          readinessProbe:
+            exec:
+              command: ['redis-cli', 'info', 'server']
           volumeMounts:
             - name: redis-server-volume
               mountPath: /data
