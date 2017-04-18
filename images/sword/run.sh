@@ -16,7 +16,7 @@ redis_info_role () {
 }
 
 server_domains () {
-  dig +noall +answer srv "$1" | awk -F' ' '{print $NF}' | sed 's/\.$//g'
+  dig +noall +answer srv "$1" | awk '{print $NF}' | sed 's/\.$//g'
 }
 
 sentinel_master () {
@@ -28,7 +28,7 @@ reset_sentinel () {
 }
 
 domain_ip () {
-  dig +noall +answer a "$1" | head -1 | awk -F' ' '{print $NF}'
+  dig +noall +answer a "$1" | head -1 | awk '{print $NF}'
 }
 
 sentinel_num_slaves () {
@@ -66,14 +66,16 @@ reflect_recreated_servers () {
 
   local s
   for s in $servers; do
-    local s_ip="$(domain_ip "$s")"
+    local s_ip
+    s_ip="$(domain_ip "$s")"
 
     if [ -z "$s_ip" ]; then
       >&2 echo "Failed to resolve: $s"
       continue
     fi
 
-    local i="$(redis_info "$s_ip")"
+    local i
+    i="$(redis_info "$s_ip")"
     if [ -n "$i" ]; then
       if [ "$(redis_info_role "$i")" = 'master' ]; then
         redis-cli -p 26379 shutdown nosave

@@ -23,11 +23,11 @@ redis_info_role () {
 }
 
 domain_ip () {
-  /opt/bin/dig-a "$1" | head -1 | awk -F' ' '{print $NF}'
+  /opt/bin/dig-a "$1" | head -1 | awk '{print $NF}'
 }
 
 server_domains () {
-  /opt/bin/dig-srv "$1" | awk -F' ' '{print $NF}' | sed 's/\.$//g'
+  /opt/bin/dig-srv "$1" | awk '{print $NF}' | sed 's/\.$//g'
 }
 
 # At the end of the (succeeded) script, resetting all sentinels is necessary.
@@ -41,7 +41,8 @@ reset_all_sentinels () {
   local s
   >&2 echo "Resetting all sentinels: $servers"
   for s in $servers; do
-    local s_ip="$(domain_ip "$s")"
+    local s_ip
+    s_ip="$(domain_ip "$s")"
 
     if [ -z "$s_ip" ]; then
       >&2 echo "Failed to resolve: $s"
@@ -55,7 +56,7 @@ reset_all_sentinels () {
 }
 
 slave_priority () {
-  local -r no="$(echo "$(hostname)" | sed -e 's/^.\+-\([0-9]\+\)$/\1/g')"
+  local -r no="$(hostname | awk -F- '{print $NF}')"
   local -r priority="$(((no + 1) * 10))"
   echo "slave-priority $priority"
 }
@@ -68,8 +69,10 @@ run () {
   # Domain name of the Service is also used as the password.
   # In this case, password is just an ID to distinguish this replica set from
   # other ones in the same Kubernetes cluster.
-  echo "masterauth $service_domain" >> /opt/redis.conf
-  echo "requirepass $service_domain" >> /opt/redis.conf
+  { 
+    echo "masterauth $service_domain";
+    echo "requirepass $service_domain"; 
+  } >> /opt/redis.conf
 
   # Replica with smaller number should be the preferred candidate for Master
   # over ones with larger number.
@@ -94,14 +97,16 @@ run () {
 
     only_server=false
 
-    local s_ip="$(domain_ip "$s")"
+    local s_ip
+    s_ip="$(domain_ip "$s")"
 
     if [ -z "$s_ip" ]; then
       >&2 echo "Failed to resolve: $s"
       continue
     fi
 
-    local i="$(redis_info "$s_ip")"
+    local i
+    i="$(redis_info "$s_ip")"
     if [ -n "$i" ]; then
       if [ "$(redis_info_role "$i")" = 'master' ]; then
         master_ip="$s_ip"

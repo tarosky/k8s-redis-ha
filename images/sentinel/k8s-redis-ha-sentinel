@@ -16,11 +16,11 @@ redis_info_role () {
 }
 
 domain_ip () {
-  /opt/bin/dig-a "$1" | head -1 | awk -F' ' '{print $NF}'
+  /opt/bin/dig-a "$1" | head -1 | awk '{print $NF}'
 }
 
 server_domains () {
-  /opt/bin/dig-srv "$1" | awk -F' ' '{print $NF}' | sed 's/\.$//g'
+  /opt/bin/dig-srv "$1" | awk '{print $NF}' | sed 's/\.$//g'
 }
 
 run () {
@@ -33,14 +33,16 @@ run () {
 
   local s
   for s in $servers; do
-    local s_ip="$(domain_ip "$s")"
+    local s_ip
+    s_ip="$(domain_ip "$s")"
 
     if [ -z "$s_ip" ]; then
       >&2 echo "Failed to resolve: $s"
       continue
     fi
 
-    local i="$(redis_info "$s_ip")"
+    local i
+    i="$(redis_info "$s_ip")"
     if [ -n "$i" ]; then
       if [ "$(redis_info_role "$i")" = 'master' ]; then
         master_ip="$s_ip"
@@ -56,10 +58,8 @@ run () {
     exit 1
   fi
 
-  cat /opt/sentinel.template.conf | \
-    sed "s/%MASTER%/$master_ip/g" | \
-    sed "s/%PASSWORD%/$service_domain/g" \
-    > /opt/sentinel.conf
+  < /opt/sentinel.template.conf sed "s/%MASTER%/$master_ip/g" | \
+    sed "s/%PASSWORD%/$service_domain/g" > /opt/sentinel.conf
   exec docker-entrypoint.sh redis-sentinel "$@"
 }
 
