@@ -2,7 +2,7 @@
 
 set -eux
 
-namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+namespace="$(< /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
 readonly namespace
 readonly service_domain="_$SERVICE_PORT._tcp.$SERVICE.$namespace.svc.cluster.local"
 
