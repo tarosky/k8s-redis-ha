@@ -2,7 +2,8 @@
 
 set -eux
 
-readonly namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+readonly namespace
 readonly service_domain="_$SERVICE_PORT._tcp.$SERVICE.$namespace.svc.cluster.local"
 
 redis_info () {
@@ -55,14 +56,22 @@ reflect_recreated_servers () {
   # If the state has changed, never do anything because it is just a
   # transition state and sentinels will find the next Master themselves.
   # Restarting them is just harmful.
-  local -r master="$(sentinel_master)"
-  local -r num_slaves="$(sentinel_num_slaves "$master")"
-  local -r master_down="$(sentinel_master_down "$master")"
+  local master
+  master="$(sentinel_master)"
+  readonly master
+  local num_slaves
+  num_slaves="$(sentinel_num_slaves "$master")"
+  readonly num_slaves
+  local master_down
+  master_down="$(sentinel_master_down "$master")"
+  readonly master_down
   if [ "$num_slaves" != '0' ] || [ "$master_down" != 'true' ]; then
     return 0
   fi
 
-  local -r servers="$(server_domains "$service_domain")"
+  local servers
+  servers="$(server_domains "$service_domain")"
+  readonly servers
 
   local s
   for s in $servers; do
@@ -96,8 +105,12 @@ reflect_scale_in () {
   # Be sure to wait enough and once again confirm running Master exists.
   sleep 10
 
-  local -r master="$(sentinel_master)"
-  local -r master_down="$(sentinel_master_down "$master")"
+  local master
+  master="$(sentinel_master)"
+  readonly master
+  local master_down
+  master_down="$(sentinel_master_down "$master")"
+  readonly master_down
 
   if [ "$master_down" = 'false' ]; then
     reset_sentinel
@@ -105,10 +118,18 @@ reflect_scale_in () {
 }
 
 run () {
-  local -r srv_count="$(server_domains "$service_domain" | wc -l)"
-  local -r master="$(sentinel_master)"
-  local -r num_slaves="$(sentinel_num_slaves "$master")"
-  local -r master_down="$(sentinel_master_down "$master")"
+  local master
+  master="$(sentinel_master)"
+  readonly master
+  local num_slaves
+  num_slaves="$(sentinel_num_slaves "$master")"
+  readonly num_slaves
+  local master_down
+  master_down="$(sentinel_master_down "$master")"
+  readonly master_down
+  local srv_count
+  srv_count="$(server_domains "$service_domain" | wc -l)"
+  readonly srv_count
 
   if [ "$num_slaves" = '0' ] && [ "$master_down" = 'true' ]; then
     # If the Redis server StatefulSet is once deleted and created again,

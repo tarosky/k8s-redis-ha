@@ -2,7 +2,8 @@
 
 set -eux
 
-readonly namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+readonly namespace
 readonly service_domain="_$SERVICE_PORT._tcp.$SERVICE.$namespace.svc.cluster.local"
 
 redis_info () {
@@ -27,7 +28,9 @@ run () {
   # It's okay to fail during failover or other unpredictable states.
   # This prevents from making things much worse.
 
-  local -r servers="$(server_domains "$service_domain")"
+  local servers
+  servers="$(server_domains "$service_domain")"
+  readonly servers
 
   local master_ip=''
 

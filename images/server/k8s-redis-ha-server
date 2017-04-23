@@ -2,7 +2,8 @@
 
 set -eux
 
-readonly namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+readonly namespace
 readonly service_domain="_$SERVICE_PORT._tcp.$SERVICE.$namespace.svc.cluster.local"
 readonly sentinel_domain="_$SENTINEL_PORT._tcp.$SENTINEL.$namespace.svc.cluster.local"
 
@@ -37,7 +38,9 @@ server_domains () {
 # is the same slave as the dead one.
 # Kubernetes may change Pod's IP address on restart.
 reset_all_sentinels () {
-  local -r servers="$(server_domains "$sentinel_domain")"
+  local servers
+  servers="$(server_domains "$sentinel_domain")"
+  readonly servers
   local s
   >&2 echo "Resetting all sentinels: $servers"
   for s in $servers; do
@@ -56,7 +59,9 @@ reset_all_sentinels () {
 }
 
 slave_priority () {
-  local -r no="$(hostname | awk -F- '{print $NF}')"
+  local no
+  no="$(hostname | awk -F- '{print $NF}')"
+  readonly no
   local -r priority="$(((no + 1) * 10))"
   echo "slave-priority $priority"
 }
@@ -82,8 +87,12 @@ run () {
 
   # Headless Service allows newly added Redis server to scan all working servers.
   # This enables it to find if it is the first one.
-  local -r servers="$(server_domains "$service_domain")"
-  local -r my_host="$(hostname -f)"
+  local servers
+  servers="$(server_domains "$service_domain")"
+  readonly servers
+  local my_host
+  my_host="$(hostname -f)"
+  readonly my_host
 
   local master_ip=''
 
