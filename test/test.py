@@ -21,11 +21,7 @@ class TestRedisHA(unittest.TestCase):
     )
 
   def setUp(self):
-    namespace = os.environ.get('KUBE_NAMESPACE')
-    if namespace is None:
-      self._namespace = 'default'
-    else:
-      self._namespace = namespace
+    self._namespace = os.environ.get('KUBE_NAMESPACE', 'default')
     self._kubectl(['create', '-f', './example'])
     self._kubectl(['create', '-f', './test'])
     time.sleep(self.wait)

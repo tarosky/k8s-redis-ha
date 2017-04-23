@@ -1,5 +1,5 @@
-.envrc
-.ropeproject
-.venv
+/.envrc
+/.ropeproject
+/.venv
 /work/
 __pycache__

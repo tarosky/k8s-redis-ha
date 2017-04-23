@@ -3,13 +3,11 @@
 set -eu
 
 SERVER_PASS="_redis-server._tcp.redis-server.${KUBE_NAMESPACE}.svc.cluster.local"
-SENTINEL_PASS="_redis-sentinel._tcp.redis-sentinel.${KUBE_NAMESPACE}.svc.cluster.local"
 
 get_master_ip () {
   kubectl exec console -n "${KUBE_NAMESPACE}" -- \
     redis-cli \
       -h redis-sentinel \
-      -a "${SENTINEL_PASS}" \
       -p 26379 \
       sentinel get-master-addr-by-name mymaster |
       head -1
