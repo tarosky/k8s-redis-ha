@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -eu
+
+SERVER_PASS="_redis-server._tcp.redis-server.${KUBE_NAMESPACE}.svc.cluster.local"
+
+get_master_ip () {
+  kubectl exec console -n "${KUBE_NAMESPACE}" -- \
+    redis-cli \
+      -h redis-sentinel \
+      -p 26379 \
+      sentinel get-master-addr-by-name mymaster |
+      head -1
+}
+
+MASTER_IP="$(get_master_ip)"
+
+kubectl exec console -n "${KUBE_NAMESPACE}" -- \
+  redis-cli \
+    -h "${MASTER_IP}" \
+    -a "${SERVER_PASS}" \
+    "$@"

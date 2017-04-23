@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -eu
+
+kubectl exec console -n "${KUBE_NAMESPACE}" -- \
+  redis-cli \
+    -h redis-sentinel \
+    -p 26379 \
+    sentinel sentinels mymaster |
+    grep '[0-9]\{1,3\}\.'
