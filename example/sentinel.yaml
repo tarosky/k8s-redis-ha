@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
@@ -12,7 +13,7 @@ spec:
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
             "name": "k8s-redis-ha-sentinel",
-            "image": "tarosky/k8s-redis-ha:sentinel-2.0.0",
+            "image": "ilil/k8s-redis-ha:sentinel-2.0.1",
             "volumeMounts": [{"name": "opt", "mountPath": "/opt"}]
           }]'
     spec:
@@ -38,12 +39,16 @@ spec:
             - name: opt
               mountPath: /opt
         - name: redis-sword
-          image: tarosky/k8s-redis-ha:sword-2.0.0
+          image: ilil/k8s-redis-ha:sword-2.0.1
           env:
             - name: SERVICE
               value: redis-server
             - name: SERVICE_PORT
               value: redis-server
+            - name: SENTINEL
+              value: redis-sentinel
+            - name: SENTINEL_PORT
+              value: redis-sentinel
           volumeMounts:
             - name: opt
               mountPath: /opt
