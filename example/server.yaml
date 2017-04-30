@@ -13,7 +13,7 @@ spec:
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
             "name": "k8s-redis-ha-server",
-            "image": "ilil/k8s-redis-ha:server-2.0.1",
+            "image": "tarosky/k8s-redis-ha:server-3.0.0",
             "volumeMounts": [{"name": "opt", "mountPath": "/opt"}]
           }]'
     spec:

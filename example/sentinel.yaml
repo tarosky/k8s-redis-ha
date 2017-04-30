@@ -13,7 +13,7 @@ spec:
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
             "name": "k8s-redis-ha-sentinel",
-            "image": "ilil/k8s-redis-ha:sentinel-2.0.1",
+            "image": "tarosky/k8s-redis-ha:sentinel-3.0.0",
             "volumeMounts": [{"name": "opt", "mountPath": "/opt"}]
           }]'
     spec:
@@ -39,7 +39,7 @@ spec:
             - name: opt
               mountPath: /opt
         - name: redis-sword
-          image: ilil/k8s-redis-ha:sword-2.0.1
+          image: tarosky/k8s-redis-ha:sword-3.0.0
           env:
             - name: SERVICE
               value: redis-server
