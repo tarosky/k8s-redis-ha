@@ -60,7 +60,6 @@ class TestRedisHA(unittest.TestCase):
     result = subprocess.run(
         ['test/script/get-sentinel-ip'], stdout=subprocess.PIPE
     )
-    log.debug(result)
     self.assertEqual(num, len(result.stdout.split(b'\n')))
     self.assertEqual(0, result.returncode)
 
@@ -119,19 +118,20 @@ class TestScaleOutInServer(TestRedisHA):
     self.assertRedisSlaveNum(2)
 
 
-# # Scale-in of Sentinels doesn't reset Sentinels #11
-# # https://github.com/tarosky/k8s-redis-ha/issues/11
-# class TestScaleOutInSentinel(TestRedisHA):
-#   def test_scale_out_in_sentinel(self):
-#     self._scale('statefulset/redis-sentinel', 5)
-#     time.sleep(60)
-#     for x in range(5):
-#       self.assertPodPhase('redis-sentinel-{}'.format(x), 'Running')
-#     self._scale('statefulset/redis-sentinel', 3)
-#     time.sleep(60)
-#     for x in range(3):
-#       self.assertPodPhase('redis-sentinel-{}'.format(x), 'Running')
-#     self.assertRedisSentinelNum(3)
+# Scale-in of Sentinels doesn't reset Sentinels #11
+# https://github.com/tarosky/k8s-redis-ha/issues/11
+class TestScaleOutInSentinel(TestRedisHA):
+  def test_scale_out_in_sentinel(self):
+    self._scale('statefulset/redis-sentinel', 5)
+    time.sleep(60)
+    for x in range(5):
+      self.assertPodPhase('redis-sentinel-{}'.format(x), 'Running')
+    self._scale('statefulset/redis-sentinel', 3)
+    time.sleep(120)
+    for x in range(3):
+      self.assertPodPhase('redis-sentinel-{}'.format(x), 'Running')
+    self.assertRedisSentinelNum(3)
+
 
 # # This is a test case to delete a Pod with Master
 # # before Sentinel starts a majority. As a result, deadlock occurs.

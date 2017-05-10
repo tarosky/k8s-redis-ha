@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
@@ -12,7 +13,7 @@ spec:
       annotations:
         pod.beta.kubernetes.io/init-containers: '[{
             "name": "k8s-redis-ha-server",
-            "image": "tarosky/k8s-redis-ha:server-2.0.0",
+            "image": "tarosky/k8s-redis-ha:server-3.0.0",
             "volumeMounts": [{"name": "opt", "mountPath": "/opt"}]
           }]'
     spec:

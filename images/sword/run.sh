@@ -5,6 +5,7 @@ set -eux
 namespace="$(< /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
 readonly namespace
 readonly service_domain="_$SERVICE_PORT._tcp.$SERVICE.$namespace.svc.cluster.local"
+readonly service_sentinel_domain="_$SENTINEL_PORT._tcp.$SENTINEL.$namespace.svc.cluster.local"
 
 redis_info () {
   set +e
@@ -34,6 +35,10 @@ domain_ip () {
 
 sentinel_num_slaves () {
   echo "$1" | awk '/^num-slaves$/{getline; print}'
+}
+
+sentinel_num_sentinels () {
+  echo "$1" | awk '/^num-other-sentinels$/{getline; print}'
 }
 
 sentinel_master_down () {
@@ -130,6 +135,12 @@ run () {
   local srv_count
   srv_count="$(server_domains "$service_domain" | wc -l)"
   readonly srv_count
+  local num_sentinels
+  num_sentinels="$(sentinel_num_sentinels "$master")"
+  readonly num_sentinels
+  local srv_sentinel_count
+  srv_sentinel_count="$(server_domains "$service_sentinel_domain" | wc -l)"
+  readonly srv_sentinel_count
 
   if [ "$num_slaves" = '0' ] && [ "$master_down" = 'true' ]; then
     # If the Redis server StatefulSet is once deleted and created again,
@@ -144,6 +155,8 @@ run () {
     # such as from 5 replicas to 3 replicas.
     # Sentinel thinks this descrease as failure.
     # To tell that this is not a failure but a scale in, resetting is needed.
+    reflect_scale_in
+  elif [ "$(echo "$srv_sentinel_count - 1" | bc)" -lt "$num_sentinels" ]; then
     reflect_scale_in
   fi
 }
