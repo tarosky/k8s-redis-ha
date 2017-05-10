@@ -23,12 +23,10 @@ class TestRedisHA(unittest.TestCase):
   def setUp(self):
     self._namespace = os.environ.get('KUBE_NAMESPACE', 'default')
     self._kubectl(['create', '-f', './example'])
-    self._kubectl(['create', '-f', './test'])
     time.sleep(self.wait)
 
   def tearDown(self):
     self._kubectl(['delete', '-f', './example'])
-    self._kubectl(['delete', '-f', './test'])
     time.sleep(60)
 
   def _delete_pod(self, pod_name):
