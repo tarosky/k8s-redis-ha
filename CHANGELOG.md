@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.0
+
+* Scale-in of Sentinels doesn't reset Sentinels #11
+* Refactor shell script code by using shellcheck #9
+* Test HARedis thoroughly #3
+
 ## 2.0.0
 
 * Never use Init Container for unidempotent tasks #6
