@@ -35,10 +35,8 @@ $ # Log in console Pod
 $ kubectl exec -ti console -- /bin/bash
 root@console:# export MASTER_IP="$(redis-cli -h redis-sentinel -p 26379 sentinel get-master-addr-by-name mymaster | head -1)"
 root@console:# export SERVER_PASS="_redis-server._tcp.redis-server.default.svc.cluster.local"
-root@console:# # set foo=bar 
-root@console:# redis-cli -h "${MASTER_IP}" -a "${SERVER_PASS}" set foo bar
+root@console:# redis-cli -h "${MASTER_IP}" -a "${SERVER_PASS}" set foo bar # set foo=bar 
 OK
-root@console:# # get foo
 root@console:# redis-cli -h redis-server -a "${SERVER_PASS}" get foo 
 bar
 ```
@@ -46,7 +44,6 @@ bar
 If you aren't on 'default' namespace, please replace default in `$SERVER_PASS` with your namespace:
 
 ```console
-root@console:# # if your namespace is 'abcde' ...
 root@console:# export SERVER_PASS="_redis-server._tcp.redis-server.abcde.svc.cluster.local"
 ```
 
@@ -79,7 +76,12 @@ In [1]: from redis import StrictRedis
 
 In [2]: from redis.sentinel import Sentinel
 
-In [3]: sentinel = Sentinel([('redis-sentinel', 26379)], socket_timeout=0.1)
+In [3]: sentinel = Sentinel([
+   ...:         ('redis-sentinel-0.redis-sentinel.oshita.svc.cluster.local', 26379),
+   ...:         ('redis-sentinel-1.redis-sentinel.oshita.svc.cluster.local', 26379),
+   ...:         ('redis-sentinel-2.redis-sentinel.oshita.svc.cluster.local', 26379)
+   ...:     ], socket_timeout=0.1
+   ...: )
 
 In [4]: master = sentinel.master_for(
    ...:     'mymaster',
