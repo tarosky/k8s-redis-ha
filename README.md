@@ -35,7 +35,7 @@ $ # Log in console Pod
 $ kubectl exec -ti console -- /bin/bash
 root@console:# export MASTER_IP="$(redis-cli -h redis-sentinel -p 26379 sentinel get-master-addr-by-name mymaster | head -1)"
 root@console:# export SERVER_PASS="_redis-server._tcp.redis-server.default.svc.cluster.local"
-root@console:# redis-cli -h "${MASTER_IP}" -a "${SERVER_PASS}" set foo bar # set foo=bar 
+root@console:# redis-cli -h "${MASTER_IP}" -a "${SERVER_PASS}" set foo bar
 OK
 root@console:# redis-cli -h redis-server -a "${SERVER_PASS}" get foo 
 bar
