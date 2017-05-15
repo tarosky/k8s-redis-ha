@@ -7,4 +7,4 @@ spec:
   restartPolicy: Always
   containers:
     - name: console
-      image: redis:3.2
+      image: tarosky/k8s-redis-ha:console-3.0.1
