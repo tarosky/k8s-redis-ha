@@ -1,8 +1,8 @@
 # Change Log
 
-## 3.0.0
+## 3.0.1
 
-* Add documentation #15
+* Add documentation #15 #17
 * Add Console image for tutorial #15
 
 ## 3.0.0
